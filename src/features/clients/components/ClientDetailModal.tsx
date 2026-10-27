@@ -1194,7 +1194,7 @@ const ClientDetailModal: React.FC<ClientDetailModalProps> = ({
                             <input
                               id={`payment-proof-${p.id}`}
                               type="file"
-                              accept="image/*"
+                              accept="image/png,image/jpeg,image/webp"
                               onChange={event => setPaymentProofFiles(prev => ({ ...prev, [p.id]: event.target.files?.[0] || null }))}
                               className="w-full h-[42px] px-3 py-2 text-xs bg-white border border-gray-300 rounded-xl text-gray-700 file:mr-3 file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:text-xs file:font-semibold"
                             />

@@ -7,6 +7,8 @@ import { createGallery, listGalleries, uploadGalleryImages, deleteGallery, updat
 import { getGalleryPublicRouteId } from '../../../utils/publicRouting';
 import { useSupabaseRealtimeRefresh } from '../../../hooks/useSupabaseRealtimeRefresh';
 
+const SUPPORTED_GALLERY_IMAGE_TYPES = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp']);
+
 interface GalleryUploadProps {
     userProfile: Profile;
     showNotification: (message: string) => void;
@@ -58,7 +60,7 @@ const GalleryDraftImagePicker: React.FC<GalleryDraftImagePickerProps> = ({
                         id={inputId}
                         type="file"
                         multiple
-                        accept="image/*"
+                        accept="image/png,image/jpeg,image/webp"
                         className="hidden"
                         disabled={disabled}
                         onChange={event => {
@@ -177,8 +179,8 @@ const GalleryUpload: React.FC<GalleryUploadProps> = ({ userProfile, showNotifica
             showNotification(`File ${file.name} terlalu besar (max 10MB)`);
             return false;
         }
-        if (!file.type.startsWith('image/')) {
-            showNotification(`File ${file.name} bukan gambar`);
+        if (!SUPPORTED_GALLERY_IMAGE_TYPES.has(file.type.toLowerCase())) {
+            showNotification(`File ${file.name} harus JPG, PNG, atau WebP`);
             return false;
         }
         return true;
@@ -264,8 +266,8 @@ const GalleryUpload: React.FC<GalleryUploadProps> = ({ userProfile, showNotifica
                     showNotification(`File ${file.name} terlalu besar (max 10MB)`);
                     return false;
                 }
-                if (!file.type.startsWith('image/')) {
-                    showNotification(`File ${file.name} bukan gambar`);
+                if (!SUPPORTED_GALLERY_IMAGE_TYPES.has(file.type.toLowerCase())) {
+                    showNotification(`File ${file.name} harus JPG, PNG, atau WebP`);
                     return false;
                 }
                 return true;
@@ -654,7 +656,7 @@ const GalleryUpload: React.FC<GalleryUploadProps> = ({ userProfile, showNotifica
                                     Ganti Cover
                                     <input 
                                         type="file" 
-                                        accept="image/*" 
+                                        accept="image/png,image/jpeg,image/webp"
                                         className="hidden" 
                                         onChange={(e) => handleUploadCoverImage(e, gallery.id)}
                                     />
@@ -1244,7 +1246,7 @@ const GalleryUpload: React.FC<GalleryUploadProps> = ({ userProfile, showNotifica
                                     <input
                                         type="file"
                                         multiple
-                                        accept="image/*"
+                                        accept="image/png,image/jpeg,image/webp"
                                         onChange={handleFileSelect}
                                         className="hidden"
                                         id="file-upload"

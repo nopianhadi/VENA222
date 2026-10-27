@@ -170,7 +170,7 @@ const EditPortfolioModal: React.FC<EditPortfolioModalProps> = ({ portfolio, cate
             <label className="cursor-pointer flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-brand-input border border-brand-border rounded-lg hover:bg-brand-border transition-colors">
               <PlusIcon className="w-3.5 h-3.5" />
               {uploading ? 'Mengunggah...' : 'Tambah Foto'}
-              <input type="file" accept="image/*" multiple className="hidden" onChange={handleAddImages} disabled={uploading} />
+              <input type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={handleAddImages} disabled={uploading} />
             </label>
           </div>
 
@@ -641,7 +641,7 @@ const VendorProfilePage: React.FC = () => {
                         <div className="grid grid-cols-2 gap-1.5">
                           <label className="flex cursor-pointer items-center justify-center rounded-lg bg-brand-accent/10 px-2 py-1.5 text-[10px] font-semibold text-brand-accent hover:bg-brand-accent/20">
                             {isUploading ? 'Menyimpan...' : 'Ganti'}
-                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleHeroSlotUpload(e, slotIdx)} disabled={uploadingHeroSlot !== null} />
+                            <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => handleHeroSlotUpload(e, slotIdx)} disabled={uploadingHeroSlot !== null} />
                           </label>
                           <button
                             type="button"
@@ -663,7 +663,7 @@ const VendorProfilePage: React.FC = () => {
                             <span className="text-[10px] text-brand-text-secondary">+ Upload</span>
                           </>
                         )}
-                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleHeroSlotUpload(e, slotIdx)} disabled={uploadingHeroSlot !== null} />
+                        <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => handleHeroSlotUpload(e, slotIdx)} disabled={uploadingHeroSlot !== null} />
                       </label>
                     )}
                   </div>
@@ -719,7 +719,7 @@ const VendorProfilePage: React.FC = () => {
                     {uploadingBannerImage ? 'Mengunggah...' : 'Ganti gambar'}
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/png,image/jpeg,image/webp"
                       className="hidden"
                       disabled={uploadingBannerImage}
                       onChange={handleBannerImageUpload}
@@ -747,7 +747,7 @@ const VendorProfilePage: React.FC = () => {
                 )}
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/png,image/jpeg,image/webp"
                   className="hidden"
                   disabled={uploadingBannerImage}
                   onChange={handleBannerImageUpload}
@@ -897,7 +897,7 @@ const VendorProfilePage: React.FC = () => {
                 <label className="cursor-pointer shrink-0 px-3 py-2 bg-brand-surface border border-brand-border hover:bg-brand-input text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors">
                   <UploadCloudIcon className="w-3.5 h-3.5" />
                   {uploadingPartnerLogo ? '...' : 'Upload'}
-                  <input type="file" accept="image/*" className="hidden" onChange={handlePartnerLogoUpload} disabled={uploadingPartnerLogo} />
+                  <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handlePartnerLogoUpload} disabled={uploadingPartnerLogo} />
                 </label>
               </div>
             </div>
@@ -1076,7 +1076,7 @@ const VendorProfilePage: React.FC = () => {
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                     <label className="cursor-pointer bg-white/20 hover:bg-white/30 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs font-medium">
                       {uploadingPortfolioId === portfolio.id ? 'Mengunggah...' : 'Ganti Cover'}
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUploadCover(e, portfolio.id)} disabled={uploadingPortfolioId === portfolio.id} />
+                      <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => handleUploadCover(e, portfolio.id)} disabled={uploadingPortfolioId === portfolio.id} />
                     </label>
                   </div>
                 </div>
@@ -1094,7 +1094,7 @@ const VendorProfilePage: React.FC = () => {
                   <div className="mt-auto flex gap-2">
                     <label className="flex-1 cursor-pointer text-center bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 py-1.5 rounded-lg text-xs font-medium transition-colors">
                       {uploadingPortfolioId === portfolio.id ? 'Uploading...' : `Upload Foto (${portfolio.images?.length || 0})`}
-                      <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleUploadImages(e, portfolio.id)} disabled={uploadingPortfolioId === portfolio.id} />
+                      <input type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={(e) => handleUploadImages(e, portfolio.id)} disabled={uploadingPortfolioId === portfolio.id} />
                     </label>
                     <button
                       onClick={() => setEditingPortfolio(portfolio)}
@@ -1163,7 +1163,7 @@ const VendorProfilePage: React.FC = () => {
                 Pilih Foto
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/png,image/jpeg,image/webp"
                   multiple
                   className="hidden"
                   onChange={handleSelectNewPortfolioImages}

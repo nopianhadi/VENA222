@@ -543,7 +543,7 @@ export const PackageModal: React.FC<PackageModalProps> = ({
                                             <span>Ganti Foto Sampul</span>
                                             <input
                                                 type="file"
-                                                accept="image/*"
+                                                accept="image/png,image/jpeg,image/webp"
                                                 onChange={onCoverImageUpload}
                                                 className="hidden"
                                             />
@@ -574,7 +574,7 @@ export const PackageModal: React.FC<PackageModalProps> = ({
                                         <span>Pilih File Gambar</span>
                                         <input
                                             type="file"
-                                            accept="image/*"
+                                            accept="image/png,image/jpeg,image/webp"
                                             onChange={onCoverImageUpload}
                                             className="hidden"
                                         />

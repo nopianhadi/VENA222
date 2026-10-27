@@ -107,8 +107,8 @@ export const InvoiceFormModal: React.FC<InvoiceFormModalProps> = ({
 
   const handleReplaceProof = async (key: string, file?: File) => {
     if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      showNotification('Pilih file gambar untuk bukti transfer.');
+    if (!['image/png', 'image/jpeg', 'image/jpg', 'image/webp'].includes(file.type)) {
+      showNotification('Pilih gambar PNG, JPG, atau WebP untuk bukti transfer.');
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
@@ -653,7 +653,7 @@ export const InvoiceFormModal: React.FC<InvoiceFormModalProps> = ({
                             <label htmlFor="replace-dp-proof" title="Unggah ulang bukti DP" className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-brand-border text-brand-accent hover:bg-brand-bg">
                               <Upload className="h-4 w-4" />
                             </label>
-                            <input id="replace-dp-proof" type="file" accept="image/*" disabled={uploadingProofKey === 'dp'} onChange={event => { void handleReplaceProof('dp', event.target.files?.[0]); event.currentTarget.value = ''; }} className="sr-only" />
+                            <input id="replace-dp-proof" type="file" accept="image/png,image/jpeg,image/webp" disabled={uploadingProofKey === 'dp'} onChange={event => { void handleReplaceProof('dp', event.target.files?.[0]); event.currentTarget.value = ''; }} className="sr-only" />
                             <button type="button" onClick={() => handleDeleteProof('dp')} title="Hapus bukti DP" aria-label="Hapus bukti DP" className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50">
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -676,7 +676,7 @@ export const InvoiceFormModal: React.FC<InvoiceFormModalProps> = ({
                               <label htmlFor={`replace-proof-${index}`} title="Unggah ulang bukti pembayaran" className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-brand-border text-brand-accent hover:bg-brand-bg">
                                 <Upload className="h-4 w-4" />
                               </label>
-                              <input id={`replace-proof-${index}`} type="file" accept="image/*" disabled={uploadingProofKey === key} onChange={event => { void handleReplaceProof(key, event.target.files?.[0]); event.currentTarget.value = ''; }} className="sr-only" />
+                              <input id={`replace-proof-${index}`} type="file" accept="image/png,image/jpeg,image/webp" disabled={uploadingProofKey === key} onChange={event => { void handleReplaceProof(key, event.target.files?.[0]); event.currentTarget.value = ''; }} className="sr-only" />
                               <button type="button" onClick={() => handleDeleteProof(key)} title="Hapus bukti pembayaran" aria-label={`Hapus bukti pembayaran ${index + 1}`} className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50">
                                 <Trash2 className="h-4 w-4" />
                               </button>

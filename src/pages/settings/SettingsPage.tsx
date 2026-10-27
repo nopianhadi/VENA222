@@ -1967,7 +1967,7 @@ const Settings: React.FC<SettingsProps> = ({ profile, setProfile, transactions, 
                                             name="logoBase64"
                                             onChange={handleLogoChange}
                                             className="block w-full text-xs md:text-sm text-brand-text-secondary file:mr-2 md:file:mr-4 file:py-1.5 md:file:py-2 file:px-3 md:file:px-4 file:rounded-full file:border-0 file:text-xs md:file:text-sm file:font-semibold file:bg-brand-accent/10 file:text-brand-accent hover:file:bg-brand-accent/20 cursor-pointer"
-                                            accept="image/png, image/jpeg, image/svg+xml"
+                                            accept="image/png, image/jpeg, image/webp"
                                         />
                                     </div>
                                 </div>

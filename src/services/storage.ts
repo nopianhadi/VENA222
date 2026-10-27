@@ -3,6 +3,16 @@ import { generateUUID } from '../utils/uuid';
 
 const DP_PROOFS_BUCKET = 'dp-proofs';
 const GALLERY_BUCKET = 'gallery-images';
+const SUPPORTED_IMAGE_UPLOAD_TYPES = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp']);
+
+export function validateImageUpload(file: File, maxSizeBytes = 10 * 1024 * 1024): void {
+  if (!SUPPORTED_IMAGE_UPLOAD_TYPES.has(file.type.toLowerCase())) {
+    throw new Error('Format gambar harus JPG, PNG, atau WebP. GIF dan SVG belum didukung.');
+  }
+  if (file.size > maxSizeBytes) {
+    throw new Error(`Ukuran gambar maksimal ${(maxSizeBytes / (1024 * 1024)).toFixed(0)} MB.`);
+  }
+}
 
 /** Repoint legacy public Storage URLs to this project's bucket when the same
  * object path has been carried over. URLs from non-Supabase hosts are untouched. */
@@ -40,11 +50,9 @@ export function canonicalizeStorageAssetUrls<T>(value: T): T {
 }
 
 export async function uploadImageAsset(file: File, folder = 'assets'): Promise<string> {
-  if (!file.type.startsWith('image/')) throw new Error('File must be an image');
-  if (file.size > 10 * 1024 * 1024) throw new Error('File size must be less than 10MB');
+  validateImageUpload(file);
 
-  // Logo/TTD PNG must keep transparency. WebP supports alpha and is usually
-  // much smaller than storing the original PNG; SVG remains vector as-is.
+  // WebP keeps PNG transparency while reducing upload size.
   const outputType = file.type === 'image/png' ? 'image/webp' : 'image/jpeg';
   const processedFile = await compressImage(file, 1200, 0.82, 400 * 1024, outputType);
   if (processedFile.size > 10 * 1024 * 1024) throw new Error('File size must be less than 10MB after compression');
@@ -78,9 +86,9 @@ export async function uploadImageDataUrl(dataUrl: string, folder: string): Promi
 }
 
 export async function uploadDpProof(file: File): Promise<string> {
-  const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
+  const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'application/pdf'];
   if (!allowedTypes.includes(file.type)) {
-    throw new Error('Format bukti transfer harus PNG, JPG, atau PDF.');
+    throw new Error('Format bukti transfer harus PNG, JPG, WebP, atau PDF.');
   }
   if (file.size > 10 * 1024 * 1024) {
     throw new Error('Ukuran bukti transfer maksimal 10 MB.');
@@ -89,12 +97,6 @@ export async function uploadDpProof(file: File): Promise<string> {
   const processedFile = await compressImage(file, 1200, 0.8, 400 * 1024); // retain readability for proof images
   const ext = (processedFile.name.split('.').pop() || 'bin').toLowerCase();
   const path = `${new Date().getFullYear()}/${new Date().getMonth() + 1}/${generateUUID()}.${ext}`;
-
-  // Ensure bucket exists (best-effort; ignore failure if already exists)
-  try {
-    // Note: Supabase JS client does not manage buckets creation; this would be done via SQL or dashboard.
-    // Keep this try/catch as documentation. If bucket missing, upload will throw and we surface a clear error.
-  } catch {}
 
   const { data, error } = await supabase.storage.from(DP_PROOFS_BUCKET).upload(path, processedFile, {
     contentType: processedFile.type || file.type,
@@ -202,11 +204,8 @@ export async function compressImage(
 }
 
 export async function uploadGalleryImage(file: File, compress: boolean = true): Promise<string> {
-  // Validate file type
-  if (!file.type.startsWith('image/')) {
-    throw new Error('File must be an image');
-  }
-  
+  validateImageUpload(file);
+
   // Kompres gambar jika compress true (default sekarang true agar jadi KB)
   const processedFile = compress ? await compressImage(file, 1920, 0.8, 200 * 1024) : file;
   
@@ -220,6 +219,7 @@ export async function uploadGalleryImage(file: File, compress: boolean = true): 
 
   try {
     const { data, error } = await supabase.storage.from(GALLERY_BUCKET).upload(path, processedFile, {
+      contentType: processedFile.type || file.type,
       cacheControl: '31536000',
       upsert: false,
     });

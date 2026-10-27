@@ -114,7 +114,7 @@ export const TeamMemberFormModal: React.FC<TeamMemberFormModalProps> = ({
                                 <Upload className="w-4 h-4" />
                                 {isUploadingAvatar ? 'Mengunggah...' : formData.avatarUrl ? 'Ganti Foto Profil' : 'Unggah Foto Profil'}
                             </label>
-                            <input id="team-member-avatar" type="file" accept="image/*" onChange={handleAvatarChange} disabled={isUploadingAvatar} className="sr-only" />
+                            <input id="team-member-avatar" type="file" accept="image/png,image/jpeg,image/webp" onChange={handleAvatarChange} disabled={isUploadingAvatar} className="sr-only" />
                             <p className="text-xs text-brand-text-secondary mt-1">JPG, PNG, atau WebP. Maksimal 5 MB.</p>
                             {avatarError && <p role="alert" className="text-xs text-red-600 mt-1">{avatarError}</p>}
                         </div>

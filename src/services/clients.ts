@@ -1,5 +1,5 @@
 import supabase from '../lib/supabaseClient';
-import { canonicalizeStorageAssetUrls, compressImage } from './storage';
+import { canonicalizeStorageAssetUrls, compressImage, validateImageUpload } from './storage';
 import { Client, ClientStatus, ClientType } from '../types';
 import { publicNamePatternsFromSlug } from '../utils/publicRouting';
 import { generateUUID } from '../utils/uuid';
@@ -201,6 +201,7 @@ export async function createClient(payload: Omit<Client, 'id'>): Promise<Client>
 }
 
 export async function uploadClientAvatar(file: File): Promise<string> {
+  validateImageUpload(file, 5 * 1024 * 1024);
   const processedFile = await compressImage(file, 1000, 0.8, 200 * 1024);
   const extension = processedFile.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
   const path = `clients/avatars/${generateUUID()}.${extension}`;

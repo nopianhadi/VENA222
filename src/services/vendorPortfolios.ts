@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
-import { canonicalizeStorageAssetUrls, compressImage } from './storage';
+import { canonicalizeStorageAssetUrls, compressImage, validateImageUpload } from './storage';
 import { VendorPortfolio, PortfolioImage } from '../types';
 import { generateUUID } from '../utils/uuid';
 
@@ -321,6 +321,7 @@ export const uploadPortfolioImages = async (
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        validateImageUpload(file);
         let imageUrl = '';
         let processedFile = file;
 
@@ -386,6 +387,7 @@ export const uploadPortfolioCover = async (
     portfolioId: string,
     file: File
 ): Promise<string> => {
+    validateImageUpload(file);
     let coverUrl = '';
     let processedFile = file;
 

@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
-import { canonicalizeStorageAssetUrls, compressImage } from './storage';
+import { canonicalizeStorageAssetUrls, compressImage, validateImageUpload } from './storage';
 import { VendorProfile } from '../types';
 import { generateUUID } from '../utils/uuid';
 
@@ -193,6 +193,7 @@ export const createOrUpdateVendorProfile = async (updates: Partial<VendorProfile
 };
 
 export const uploadVendorImage = async (file: File, path: string): Promise<string> => {
+    validateImageUpload(file);
     let processedFile = file;
     try {
         processedFile = await compressImage(file, 1600, 0.72, 200 * 1024);

@@ -280,7 +280,7 @@ const ClientForm: React.FC<ClientFormProps> = ({
                                 <Upload className="w-3.5 h-3.5" />
                                 {isUploadingAvatar ? 'Mengunggah...' : formData.avatarUrl ? 'Ganti Foto Profil' : 'Unggah Foto Profil'}
                             </label>
-                            <input id="client-avatar" type="file" accept="image/*" onChange={handleAvatarChange} disabled={isUploadingAvatar} className="sr-only" />
+                            <input id="client-avatar" type="file" accept="image/png,image/jpeg,image/webp" onChange={handleAvatarChange} disabled={isUploadingAvatar} className="sr-only" />
                             <p className="text-[10px] text-public-text-secondary mt-1">JPG, PNG, atau WebP. Maksimal 5 MB.</p>
                             {avatarUploadError && <p role="alert" className="text-[10px] text-red-600 mt-1">{avatarUploadError}</p>}
                         </div>
@@ -979,7 +979,7 @@ const ClientForm: React.FC<ClientFormProps> = ({
                                         <label htmlFor="dp-proof-upload" className="mt-2 inline-flex cursor-pointer items-center rounded-lg bg-black px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800">
                                             {formData.dpProofFile || formData.dpProofUrl ? 'Ganti file' : 'Pilih file'}
                                         </label>
-                                        <input id="dp-proof-upload" type="file" accept="image/*" onChange={handleDpProofChange} className="sr-only" />
+                                        <input id="dp-proof-upload" type="file" accept="image/png,image/jpeg,image/webp" onChange={handleDpProofChange} className="sr-only" />
                                         <p className="mt-1 text-[11px] text-neutral-600">JPG, PNG, atau WebP · Maksimal 10 MB</p>
                                     </div>
                                 </div>

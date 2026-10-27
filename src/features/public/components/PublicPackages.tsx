@@ -380,8 +380,8 @@ const PublicPackages: React.FC<PublicPackagesProps> = ({ userProfile: initialUse
 
     const handlePaymentProofFile = (file?: File) => {
         if (!file) return;
-        if (!['image/png', 'image/jpeg', 'application/pdf'].includes(file.type)) {
-            alert('Format file harus PNG, JPG, atau PDF.');
+        if (!['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'application/pdf'].includes(file.type)) {
+            alert('Format file harus PNG, JPG, WebP, atau PDF.');
             return;
         }
         if (file.size > 10 * 1024 * 1024) {
@@ -1743,7 +1743,7 @@ const PublicPackages: React.FC<PublicPackagesProps> = ({ userProfile: initialUse
                                             <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                                                 <label htmlFor="dpPaymentProof" className="relative inline-flex shrink-0 cursor-pointer items-center justify-center rounded-md border border-white bg-white px-2 py-0.5 text-[10px] font-semibold leading-4 text-brand-accent hover:bg-white/90">
                                                     <span>Pilih file</span>
-                                                    <input id="dpPaymentProof" name="dpPaymentProof" type="file" className="sr-only" onChange={handleFileChange} accept="image/png, image/jpeg, image/jpg, application/pdf" />
+                                                    <input id="dpPaymentProof" name="dpPaymentProof" type="file" className="sr-only" onChange={handleFileChange} accept="image/png, image/jpeg, image/jpg, image/webp, application/pdf" />
                                                 </label>
                                                 <span className="min-w-0 truncate text-xs text-white" title={paymentProof?.name || 'No file chosen'}>
                                                     {paymentProof?.name || 'No file chosen'}

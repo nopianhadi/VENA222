@@ -461,6 +461,11 @@ const PublicBookingForm: React.FC<PublicBookingFormProps> = ({
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
+            if (!['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'application/pdf'].includes(file.type)) {
+                showNotification('Format bukti transfer harus PNG, JPG, WebP, atau PDF.');
+                e.target.value = '';
+                return;
+            }
             if (file.size > 10 * 1024 * 1024) { // 10MB limit
                 showNotification('Ukuran file tidak boleh melebihi 10MB.');
                 e.target.value = ''; // Reset file input
@@ -1501,7 +1506,7 @@ Mohon konfirmasi untuk langkah selanjutnya. Terima kasih! 🙏`;
                                                     <p className="booking-upload-hint mt-1 text-[11px] text-neutral-600">PNG, JPG, PDF · Maksimal 10 MB</p>
                                                 </div>
                                             )}
-                                            <input id="dpPaymentProof" name="dpPaymentProof" type="file" className="sr-only" onChange={handleFileChange} accept="image/png, image/jpeg, image/jpg, application/pdf" />
+                                            <input id="dpPaymentProof" name="dpPaymentProof" type="file" className="sr-only" onChange={handleFileChange} accept="image/png, image/jpeg, image/jpg, image/webp, application/pdf" />
                                         </div>
                                         {paymentProof && (
                                             <div className="booking-upload-selected mt-2 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">

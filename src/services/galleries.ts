@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
-import { canonicalizeStorageAssetUrls, compressImage } from './storage';
+import { canonicalizeStorageAssetUrls, compressImage, validateImageUpload } from './storage';
 import { Gallery, GalleryImage } from '../types';
 import { toGalleryPublicSlug, toPublicNameSlug } from '../utils/publicRouting';
 import { generateUUID } from '../utils/uuid';
@@ -267,6 +267,7 @@ export const uploadGalleryImages = async (
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        validateImageUpload(file);
         const processedFile = await compressImage(file, 1600, 0.8, 200 * 1024);
         const fileExt = processedFile.name.split('.').pop() || 'jpg';
         const fileName = `${galleryId}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
@@ -275,6 +276,7 @@ export const uploadGalleryImages = async (
         const { data: uploadData, error: uploadError } = await supabase.storage
             .from('gallery-images')
             .upload(fileName, processedFile, {
+                contentType: processedFile.type || file.type,
                 cacheControl: '31536000'
             });
 
@@ -319,6 +321,9 @@ export const uploadGalleryPdf = async (
     file: File,
     displayName?: string
 ): Promise<{ pdf_url: string; pdf_name: string }> => {
+    if (!file.name.toLowerCase().endsWith('.pdf') || (file.type && file.type !== 'application/pdf')) {
+        throw new Error('File harus berupa PDF.');
+    }
     if (file.size > MAX_PUBLIC_PDF_BYTES) {
         throw new Error('Ukuran PDF maksimal 5 MB. Kompres PDF sebelum mengunggah agar pelanggan tidak mengunduh file terlalu besar.');
     }
@@ -433,6 +438,7 @@ export const getGalleriesByRegion = async (region: string): Promise<Gallery[]> =
 };
 
 export const uploadCoverImage = async (galleryId: string, file: File): Promise<string> => {
+    validateImageUpload(file);
     const processedFile = await compressImage(file, 1600, 0.8, 200 * 1024);
     const fileExt = processedFile.name.split('.').pop();
     const fileName = `${galleryId}/cover-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
@@ -440,7 +446,11 @@ export const uploadCoverImage = async (galleryId: string, file: File): Promise<s
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
         .from('gallery-images')
-        .upload(fileName, processedFile);
+        .upload(fileName, processedFile, {
+            contentType: processedFile.type || file.type,
+            cacheControl: '31536000',
+            upsert: false,
+        });
 
     if (uploadError) {
         console.error('Error uploading cover image:', uploadError);
