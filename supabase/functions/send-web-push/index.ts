@@ -1,5 +1,8 @@
+/// <reference path="./deno.d.ts" />
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @deno-types="npm:@supabase/supabase-js"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+// @deno-types="npm:web-push"
 import webpush from "npm:web-push@3.6.7";
 
 const corsHeaders = {
@@ -105,7 +108,7 @@ serve(async (req: Request) => {
     const staleSubscriptionIds: string[] = [];
 
     await Promise.all(
-      subscriptions.map(async (sub) => {
+      subscriptions.map(async (sub: { id: string; endpoint: string; p256dh: string; auth: string; }) => {
         try {
           const pushSubscription = {
             endpoint: sub.endpoint,
@@ -134,7 +137,7 @@ serve(async (req: Request) => {
         .from("push_subscriptions")
         .update({ is_active: false, updated_at: new Date().toISOString() })
         .in("id", staleSubscriptionIds)
-        .catch((cleanErr) => console.warn("[send-web-push] Stale cleanup error:", cleanErr));
+        .catch((cleanErr: any) => console.warn("[send-web-push] Stale cleanup error:", cleanErr));
     }
 
     return new Response(

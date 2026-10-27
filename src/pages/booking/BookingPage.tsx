@@ -12,6 +12,7 @@ import { updateProject, deleteProject } from '../../services/projects';
 import { createLead as createLeadRow, updateLead as updateLeadRow } from '../../services/leads';
 import { upsertProfile } from '../../services/profile';
 import { useChatTemplates } from '../../hooks/useChatTemplates';
+import { customizeUiText, useUiTextOverrides } from '../../utils/uiTextCustomization';
 
 const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
