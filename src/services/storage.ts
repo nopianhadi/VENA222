@@ -78,6 +78,14 @@ export async function uploadImageDataUrl(dataUrl: string, folder: string): Promi
 }
 
 export async function uploadDpProof(file: File): Promise<string> {
+  const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error('Format bukti transfer harus PNG, JPG, atau PDF.');
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    throw new Error('Ukuran bukti transfer maksimal 10 MB.');
+  }
+
   const processedFile = await compressImage(file, 1200, 0.8, 400 * 1024); // retain readability for proof images
   const ext = (processedFile.name.split('.').pop() || 'bin').toLowerCase();
   const path = `${new Date().getFullYear()}/${new Date().getMonth() + 1}/${generateUUID()}.${ext}`;
@@ -89,6 +97,7 @@ export async function uploadDpProof(file: File): Promise<string> {
   } catch {}
 
   const { data, error } = await supabase.storage.from(DP_PROOFS_BUCKET).upload(path, processedFile, {
+    contentType: processedFile.type || file.type,
     cacheControl: '31536000',
     upsert: false,
   });
