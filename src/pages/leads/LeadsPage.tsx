@@ -2365,78 +2365,107 @@ const ShareMessageModal: React.FC<ShareMessageModalProps> = ({ type, lead, userP
         publicBookingFormUrl, lead.id, lead.name, initialBookingRegion,
     ]);
 
+    const replacePackageUrl = (text: string, newUrl: string): string => {
+        if (!text) return newUrl;
+        if (text.includes('{packageLink}')) {
+            return text.replace(/{packageLink}/g, newUrl);
+        }
+        if (activePackageLink && text.includes(activePackageLink)) {
+            return text.replace(activePackageLink, newUrl);
+        }
+        const packageUrlRegex = /https?:\/\/[^\s]+(?:public-packages|gallery)[^\s]*/i;
+        if (packageUrlRegex.test(text)) {
+            return text.replace(packageUrlRegex, newUrl);
+        }
+        const anyUrlRegex = /https?:\/\/[^\s]+/i;
+        if (anyUrlRegex.test(text)) {
+            return text.replace(anyUrlRegex, newUrl);
+        }
+        return `${text}\n\n${newUrl}`;
+    };
+
+    const replaceBookingUrl = (text: string, newUrl: string): string => {
+        if (!text) return newUrl;
+        if (text.includes('{bookingFormLink}')) {
+            return text.replace(/{bookingFormLink}/g, newUrl);
+        }
+        if (bookingUrlWithName && text.includes(bookingUrlWithName)) {
+            return text.replace(bookingUrlWithName, newUrl);
+        }
+        const bookingUrlRegex = /https?:\/\/[^\s]+(?:booking)[^\s]*/i;
+        if (bookingUrlRegex.test(text)) {
+            return text.replace(bookingUrlRegex, newUrl);
+        }
+        const anyUrlRegex = /https?:\/\/[^\s]+/i;
+        if (anyUrlRegex.test(text)) {
+            return text.replace(anyUrlRegex, newUrl);
+        }
+        return `${text}\n\n${newUrl}`;
+    };
+
     useEffect(() => {
         let template = '';
         if (type === 'package') {
             const saved = userProfile.packageShareTemplate?.trim();
-            const raw = !saved || saved === 'Halo {leadName}!' ? DEFAULT_PACKAGE_SHARE_TEMPLATE : saved;
+            let raw = !saved || saved === 'Halo {leadName}!' ? DEFAULT_PACKAGE_SHARE_TEMPLATE : saved;
+            if (!raw.includes('{packageLink}')) {
+                const packageUrlRegex = /https?:\/\/[^\s]+(?:public-packages|gallery)[^\s]*/i;
+                if (packageUrlRegex.test(raw)) {
+                    raw = raw.replace(packageUrlRegex, '{packageLink}');
+                } else {
+                    raw = `${raw}\n\n{packageLink}`;
+                }
+            }
             template = raw
-                .replace('{leadName}', lead.name)
-                .replace('{companyName}', userProfile.companyName)
-                .replace('{packageLink}', activePackageLink);
+                .replace(/{leadName}/g, lead.name)
+                .replace(/{companyName}/g, userProfile.companyName || 'VENAPICTURES')
+                .replace(/{packageLink}/g, activePackageLink);
         } else {
             const saved = userProfile.bookingFormTemplate?.trim();
-            const raw = !saved || saved === 'Halo {leadName}!' ? DEFAULT_BOOKING_FORM_TEMPLATE : saved;
+            let raw = !saved || saved === 'Halo {leadName}!' ? DEFAULT_BOOKING_FORM_TEMPLATE : saved;
+            if (!raw.includes('{bookingFormLink}')) {
+                const bookingUrlRegex = /https?:\/\/[^\s]+(?:booking)[^\s]*/i;
+                if (bookingUrlRegex.test(raw)) {
+                    raw = raw.replace(bookingUrlRegex, '{bookingFormLink}');
+                } else {
+                    raw = `${raw}\n\n{bookingFormLink}`;
+                }
+            }
             template = raw
-                .replace('{leadName}', lead.name)
-                .replace('{companyName}', userProfile.companyName)
-                .replace('{bookingFormLink}', defaultBookingUrl);
+                .replace(/{leadName}/g, lead.name)
+                .replace(/{companyName}/g, userProfile.companyName || 'VENAPICTURES')
+                .replace(/{bookingFormLink}/g, defaultBookingUrl);
         }
         setMessage(template);
-    }, [type, lead.name, userProfile.packageShareTemplate, userProfile.bookingFormTemplate, userProfile.companyName, activePackageLink, defaultBookingUrl]);
+    }, [type, lead.id, lead.name, userProfile.packageShareTemplate, userProfile.bookingFormTemplate, userProfile.companyName]);
 
     const handleBookingRegionSelect = (region: string) => {
         const newLink = buildBookingUrlForRegion(region);
         setSelectedBookingRegion(region);
-        if (message.includes(bookingUrlWithName)) {
-            setMessage(prev => prev.replace(bookingUrlWithName, newLink));
-        } else if (message.includes('{bookingFormLink}')) {
-            setMessage(prev => prev.replace('{bookingFormLink}', newLink));
-        } else {
-            setMessage(prev => (prev ? `${prev}\n\n${newLink}` : newLink));
-        }
+        setMessage(prev => replaceBookingUrl(prev, newLink));
     };
 
     const handleSwitchSource = (newSource: 'public-packages' | 'gallery') => {
-        const oldLink = activePackageLink;
-        const newLink = newSource === 'public-packages' ? selectedPublicPackageLink : selectedGalleryLink;
         setPackageSource(newSource);
-        if (oldLink && newLink && oldLink !== newLink) {
-            if (message.includes(oldLink)) {
-                setMessage(prev => prev.replace(oldLink, newLink));
-            } else if (message.includes('{packageLink}')) {
-                setMessage(prev => prev.replace('{packageLink}', newLink));
-            }
-        }
+        const newLink = newSource === 'public-packages' ? selectedPublicPackageLink : selectedGalleryLink;
+        setMessage(prev => replacePackageUrl(prev, newLink));
     };
 
     const handleSelectRegion = (regValue: string) => {
-        const oldLink = selectedPublicPackageLink;
         setSelectedRegion(regValue);
         const newLink = buildPublicPackageLinkForRegion(regValue);
         if (packageSource === 'public-packages') {
-            if (oldLink && message.includes(oldLink)) {
-                setMessage(prev => prev.replace(oldLink, newLink));
-            } else if (message.includes('{packageLink}')) {
-                setMessage(prev => prev.replace('{packageLink}', newLink));
-            }
+            setMessage(prev => replacePackageUrl(prev, newLink));
         }
     };
 
     const handleGalleryChange = (newGalleryId: string) => {
-        const previousLink = selectedGalleryLink;
         setSelectedGalleryId(newGalleryId);
         const newGallery = galleries.find(g => g.id === newGalleryId);
         if (newGallery) {
             const newRouteId = getGalleryPublicRouteId(newGallery, galleries);
             const newLink = buildPublicShareUrl('gallery', newRouteId, { query: { lid: lead.id.slice(0, 8), leadName: toPublicNameSlug(lead.name) } });
-            if (previousLink && message.includes(previousLink)) {
-                setMessage(prev => prev.replace(previousLink, newLink));
-            } else if (message.includes('{packageLink}')) {
-                setMessage(prev => prev.replace('{packageLink}', newLink));
-            } else {
-                setMessage(prev => (prev ? `${prev}\n\n${newLink}` : newLink));
-            }
+            setMessage(prev => replacePackageUrl(prev, newLink));
         }
     };
 
@@ -2449,20 +2478,33 @@ const ShareMessageModal: React.FC<ShareMessageModalProps> = ({ type, lead, userP
     const handleSaveTemplate = async () => {
         let rawTemplate = message;
         try {
+            if (lead.name?.trim()) {
+                rawTemplate = rawTemplate.replace(new RegExp(escapeRegExp(lead.name.trim()), 'g'), '{leadName}');
+            }
+            if (userProfile.companyName?.trim()) {
+                rawTemplate = rawTemplate.replace(new RegExp(escapeRegExp(userProfile.companyName.trim()), 'g'), '{companyName}');
+            }
+
             if (type === 'package') {
-                rawTemplate = message
-                    .replace(new RegExp(escapeRegExp(lead.name), 'g'), '{leadName}')
-                    .replace(new RegExp(escapeRegExp(userProfile.companyName), 'g'), '{companyName}');
-                if (activePackageLink) {
-                    rawTemplate = rawTemplate.replace(new RegExp(escapeRegExp(activePackageLink), 'g'), '{packageLink}');
+                if (activePackageLink && rawTemplate.includes(activePackageLink)) {
+                    rawTemplate = rawTemplate.replace(activePackageLink, '{packageLink}');
+                } else {
+                    const packageUrlRegex = /https?:\/\/[^\s]+(?:public-packages|gallery)[^\s]*/i;
+                    if (packageUrlRegex.test(rawTemplate)) {
+                        rawTemplate = rawTemplate.replace(packageUrlRegex, '{packageLink}');
+                    }
                 }
                 setProfile(prev => ({ ...prev, packageShareTemplate: rawTemplate }));
                 await upsertProfile({ id: userProfile.id, packageShareTemplate: rawTemplate });
             } else {
-                rawTemplate = message
-                    .replace(new RegExp(escapeRegExp(lead.name), 'g'), '{leadName}')
-                    .replace(new RegExp(escapeRegExp(userProfile.companyName), 'g'), '{companyName}')
-                    .replace(new RegExp(escapeRegExp(bookingUrlWithName), 'g'), '{bookingFormLink}');
+                if (bookingUrlWithName && rawTemplate.includes(bookingUrlWithName)) {
+                    rawTemplate = rawTemplate.replace(bookingUrlWithName, '{bookingFormLink}');
+                } else {
+                    const bookingUrlRegex = /https?:\/\/[^\s]+(?:booking)[^\s]*/i;
+                    if (bookingUrlRegex.test(rawTemplate)) {
+                        rawTemplate = rawTemplate.replace(bookingUrlRegex, '{bookingFormLink}');
+                    }
+                }
                 setProfile(prev => ({ ...prev, bookingFormTemplate: rawTemplate }));
                 await upsertProfile({ id: userProfile.id, bookingFormTemplate: rawTemplate });
             }
