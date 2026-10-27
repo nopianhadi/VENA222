@@ -14,6 +14,10 @@ export function validateImageUpload(file: File, maxSizeBytes = 10 * 1024 * 1024)
   }
 }
 
+export function isPdfProofUrl(url: string): boolean {
+  return url.split(/[?#]/, 1)[0].toLowerCase().endsWith('.pdf');
+}
+
 /** Repoint legacy public Storage URLs to this project's bucket when the same
  * object path has been carried over. URLs from non-Supabase hosts are untouched. */
 export function canonicalizeStorageAssetUrl(value: string): string {

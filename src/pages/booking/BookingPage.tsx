@@ -4,6 +4,8 @@ import { ModernStatCard } from '../../components/modernize/ModernStatCard';
 import { MobileCollapsibleSection, MobileExpandableExtra } from '../../components/ui/MobileProgressiveDisclosure';
 import { SlidersHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
 import Modal from '../../shared/ui/Modal';
+import PDFViewer from '../../shared/ui/PDFViewer';
+import { isPdfProofUrl } from '../../services/storage';
 import DonutChart from '../../shared/ui/DonutChart';
 import { UsersIcon, DollarSignIcon, PackageIcon, EyeIcon, MessageSquareIcon, CalendarIcon, CheckCircleIcon, CheckIcon, BanIcon, LayoutGridIcon, ListIcon, MessageCircleIcon, WhatsappIcon, PencilIcon, Trash2Icon, BarChart2Icon, TrendingUpIcon, ChevronDownIcon, ClockIcon } from '../../constants';
 import { cleanPhoneNumber, CHAT_TEMPLATES } from '../../constants';
@@ -1044,7 +1046,9 @@ const Booking: React.FC<BookingProps> = ({ leads, setLeads, leadsLoaded, project
             )}
             <Modal isOpen={!!viewingProofUrl} onClose={() => setViewingProofUrl(null)} title="Bukti Pembayaran">
                 {viewingProofUrl && (
-                    <img src={viewingProofUrl} alt="Bukti Pembayaran Penuh" className="w-full h-auto rounded-lg"  loading="lazy" decoding="async" />
+                    isPdfProofUrl(viewingProofUrl)
+                        ? <PDFViewer pdfUrl={viewingProofUrl} className="max-h-[75vh]" />
+                        : <img src={viewingProofUrl} alt="Bukti Pembayaran Penuh" className="w-full h-auto rounded-lg" loading="lazy" decoding="async" />
                 )}
             </Modal>
         </div>

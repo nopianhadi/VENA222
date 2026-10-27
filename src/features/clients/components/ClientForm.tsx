@@ -47,21 +47,25 @@ const ClientForm: React.FC<ClientFormProps> = ({
     const [customItemPrice, setCustomItemPrice] = useState('0');
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
     const [avatarUploadError, setAvatarUploadError] = useState('');
+    const [proofUploadError, setProofUploadError] = useState('');
     const [isPackagePickerOpen, setIsPackagePickerOpen] = useState(false);
 
     const handleDpProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.currentTarget.files?.[0];
         if (!file) return;
-        if (!file.type.startsWith('image/')) {
+        if (!['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'application/pdf'].includes(file.type.toLowerCase())) {
+            setProofUploadError('Format bukti transfer harus PNG, JPG, WebP, atau PDF.');
             setFormData(prev => ({ ...prev, dpProofFile: null }));
             e.currentTarget.value = '';
             return;
         }
         if (file.size > 10 * 1024 * 1024) {
+            setProofUploadError('Ukuran bukti transfer maksimal 10 MB.');
             setFormData(prev => ({ ...prev, dpProofFile: null }));
             e.currentTarget.value = '';
             return;
         }
+        setProofUploadError('');
         setFormData(prev => ({ ...prev, dpProofFile: file }));
     };
 
@@ -972,15 +976,20 @@ const ClientForm: React.FC<ClientFormProps> = ({
                                         {formData.dpProofFile && <p className="mt-1 break-all text-xs text-public-text-secondary">{formData.dpProofFile.name}</p>}
                                         {formData.dpProofUrl && !formData.dpProofFile && (
                                             <a href={formData.dpProofUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-2 text-[11px] font-semibold text-black underline underline-offset-2">
-                                                <img src={formData.dpProofUrl} alt="Pratinjau bukti transfer DP" className="h-12 w-16 rounded-md border border-public-border object-cover" loading="lazy" decoding="async" />
+                                                {formData.dpProofUrl.toLowerCase().split(/[?#]/, 1)[0].endsWith('.pdf') ? (
+                                                    <span className="inline-flex h-12 w-16 items-center justify-center rounded-md border border-public-border bg-neutral-100 text-[10px] font-bold text-neutral-700">PDF</span>
+                                                ) : (
+                                                    <img src={formData.dpProofUrl} alt="Pratinjau bukti transfer DP" className="h-12 w-16 rounded-md border border-public-border object-cover" loading="lazy" decoding="async" />
+                                                )}
                                                 Lihat bukti transfer saat ini
                                             </a>
                                         )}
                                         <label htmlFor="dp-proof-upload" className="mt-2 inline-flex cursor-pointer items-center rounded-lg bg-black px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800">
                                             {formData.dpProofFile || formData.dpProofUrl ? 'Ganti file' : 'Pilih file'}
                                         </label>
-                                        <input id="dp-proof-upload" type="file" accept="image/png,image/jpeg,image/webp" onChange={handleDpProofChange} className="sr-only" />
-                                        <p className="mt-1 text-[11px] text-neutral-600">JPG, PNG, atau WebP · Maksimal 10 MB</p>
+                                        <input id="dp-proof-upload" type="file" accept="image/png,image/jpeg,image/webp,application/pdf" onChange={handleDpProofChange} className="sr-only" />
+                                        <p className="mt-1 text-[11px] text-neutral-600">JPG, PNG, WebP, atau PDF · Maksimal 10 MB</p>
+                                        {proofUploadError && <p role="alert" className="mt-1 text-[11px] text-red-600">{proofUploadError}</p>}
                                     </div>
                                 </div>
                             </div>

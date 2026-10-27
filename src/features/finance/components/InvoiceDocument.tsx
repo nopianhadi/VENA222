@@ -1,5 +1,7 @@
 import React from 'react';
 import { Project, Profile, Package, Client, PaymentStatus, PhysicalItem } from '../../../types';
+import PDFViewer from '../../../shared/ui/PDFViewer';
+import { isPdfProofUrl } from '../../../services/storage';
 
 interface InvoiceDocumentProps {
   project: Project;
@@ -365,7 +367,9 @@ const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({
         <section key={proof.url} className={`invoice-proof-appendix mx-auto w-full max-w-[800px] border-t border-slate-200 bg-white p-4 sm:p-6 print:border-0 ${index > 0 || project.dpProofUrl ? 'print:break-before-page' : ''}`}>
           <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-700 print:text-black">{proof.label}</h3>
           <a href={proof.url} target="_blank" rel="noopener noreferrer" className="block">
-            <img src={proof.url} alt={proof.label} className="mx-auto max-h-[900px] max-w-full object-contain" crossOrigin="anonymous" />
+            {isPdfProofUrl(proof.url)
+              ? <PDFViewer pdfUrl={proof.url} className="max-h-[900px] print:overflow-visible" />
+              : <img src={proof.url} alt={proof.label} className="mx-auto max-h-[900px] max-w-full object-contain" crossOrigin="anonymous" />}
           </a>
         </section>
       ))}

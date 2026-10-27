@@ -953,6 +953,23 @@ Mohon konfirmasi untuk langkah selanjutnya. Terima kasih! 🙏`;
                 .public-booking-form .booking-upload-instruction { font-size: 14px !important; }
                 .public-booking-form .booking-upload-hint { font-size: 12px !important; }
                 .public-booking-form .booking-upload-selected { font-size: 13px !important; line-height: 1.4 !important; }
+                /* Keep the native file input fully out of layout on every screen size.
+                   Focus styles from the app-wide input rules must not make it expand
+                   or scroll the page when the upload label is clicked. */
+                .public-booking-form input[type="file"].sr-only {
+                    position: fixed !important;
+                    top: -9999px !important;
+                    left: -9999px !important;
+                    width: 1px !important;
+                    min-width: 0 !important;
+                    height: 1px !important;
+                    min-height: 0 !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    border: 0 !important;
+                    box-shadow: none !important;
+                    opacity: 0 !important;
+                }
                 .public-booking-form .booking-upload-box button,
                 .public-booking-form .booking-upload-box label {
                     max-width: 100%;
@@ -1016,16 +1033,6 @@ Mohon konfirmasi untuk langkah selanjutnya. Terima kasih! 🙏`;
                         width: 100%;
                         margin: 8px 0 0;
                         padding: 10px;
-                    }
-                    /* Prevent mobile browser scroll-jump to sr-only file input */
-                    .public-booking-form input[type="file"].sr-only {
-                        position: fixed !important;
-                        top: -9999px !important;
-                        left: -9999px !important;
-                        width: 1px !important;
-                        height: 1px !important;
-                        overflow: hidden !important;
-                        opacity: 0 !important;
                     }
                 }
                 @media (max-width: 768px) { .template-modern .form-container { grid-template-columns: 1fr; } }
@@ -1470,17 +1477,17 @@ Mohon konfirmasi untuk langkah selanjutnya. Terima kasih! 🙏`;
                                     </div>
                                     <div className="space-y-2 !mt-4">
                                         <label htmlFor="dpPaymentProof" className="block text-xs font-semibold text-black">Bukti Transfer DP (Opsional)</label>
-                                        <div className="booking-upload-box mt-2 flex justify-center rounded-2xl border-2 border-dashed border-black bg-gradient-to-br from-neutral-50 to-white transition-colors hover:border-neutral-900">
+                                        <div className="booking-upload-box mt-2 flex max-w-full justify-center overflow-hidden rounded-2xl border-2 border-dashed border-black bg-gradient-to-br from-neutral-50 to-white transition-colors hover:border-neutral-900">
                                             {paymentProof ? (
-                                                <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
+                                                <div className="flex w-full min-w-0 max-w-full flex-col items-center gap-3 overflow-hidden sm:flex-row sm:items-center">
                                                     {paymentProofPreviewUrl ? (
                                                         <img
                                                             src={paymentProofPreviewUrl}
                                                             alt={`Pratinjau bukti transfer ${paymentProof.name}`}
-                                                            className="h-36 w-full rounded-xl border border-neutral-200 object-contain bg-white sm:h-28 sm:w-36"
+                                                            className="h-28 w-full max-w-[9rem] shrink-0 rounded-xl border border-neutral-200 bg-white object-contain"
                                                          loading="lazy" decoding="async" />
                                                     ) : (
-                                                        <div className="flex h-24 w-full items-center justify-center rounded-xl border border-neutral-200 bg-white text-sm font-bold text-black sm:h-20 sm:w-28">
+                                                        <div className="flex h-28 w-full max-w-[9rem] shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-white text-sm font-bold text-black">
                                                             PDF
                                                         </div>
                                                     )}
@@ -1503,7 +1510,7 @@ Mohon konfirmasi untuk langkah selanjutnya. Terima kasih! 🙏`;
                                                     <label htmlFor="dpPaymentProof" className="mt-2 inline-flex cursor-pointer items-center rounded-lg bg-black px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800">
                                                         Pilih file
                                                     </label>
-                                                    <p className="booking-upload-hint mt-1 text-[11px] text-neutral-600">PNG, JPG, PDF · Maksimal 10 MB</p>
+                                                    <p className="booking-upload-hint mt-1 text-[11px] text-neutral-600">PNG, JPG, WebP, PDF · Maksimal 10 MB</p>
                                                 </div>
                                             )}
                                             <input id="dpPaymentProof" name="dpPaymentProof" type="file" className="sr-only" onChange={handleFileChange} accept="image/png, image/jpeg, image/jpg, image/webp, application/pdf" />

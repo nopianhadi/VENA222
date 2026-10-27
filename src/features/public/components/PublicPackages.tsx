@@ -1750,7 +1750,7 @@ const PublicPackages: React.FC<PublicPackagesProps> = ({ userProfile: initialUse
                                                 </span>
                                             </div>
                                             <p className="mt-1 text-[11px] leading-4 text-white/90">atau seret dan lepas</p>
-                                            <p className="text-[11px] leading-4 text-white/90">PNG, JPG, PDF hingga 10MB</p>
+                                            <p className="text-[11px] leading-4 text-white/90">PNG, JPG, WebP, PDF hingga 10MB</p>
                                         </div>
                                     </div>
                                 </div>

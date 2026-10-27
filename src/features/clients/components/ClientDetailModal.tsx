@@ -1194,8 +1194,21 @@ const ClientDetailModal: React.FC<ClientDetailModalProps> = ({
                             <input
                               id={`payment-proof-${p.id}`}
                               type="file"
-                              accept="image/png,image/jpeg,image/webp"
-                              onChange={event => setPaymentProofFiles(prev => ({ ...prev, [p.id]: event.target.files?.[0] || null }))}
+                              accept="image/png,image/jpeg,image/webp,application/pdf"
+                              onChange={event => {
+                                const file = event.target.files?.[0] || null;
+                                if (file && !['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'application/pdf'].includes(file.type.toLowerCase())) {
+                                  showNotification('Format bukti transfer harus PNG, JPG, WebP, atau PDF.');
+                                  event.currentTarget.value = '';
+                                  return;
+                                }
+                                if (file && file.size > 10 * 1024 * 1024) {
+                                  showNotification('Ukuran bukti transfer maksimal 10 MB.');
+                                  event.currentTarget.value = '';
+                                  return;
+                                }
+                                setPaymentProofFiles(prev => ({ ...prev, [p.id]: file }));
+                              }}
                               className="w-full h-[42px] px-3 py-2 text-xs bg-white border border-gray-300 rounded-xl text-gray-700 file:mr-3 file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:text-xs file:font-semibold"
                             />
                           </div>

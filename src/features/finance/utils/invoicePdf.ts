@@ -1,4 +1,6 @@
 import { jsPDF } from 'jspdf';
+import * as pdfjs from 'pdfjs-dist';
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { Client, Package, PaymentStatus, PhysicalItem, Profile, Project, Transaction, TransactionType } from '../../../types';
 import {
   COLORS,
@@ -21,6 +23,44 @@ import {
   mixWithWhite,
   sanitize,
 } from '../../../shared/utils/pdfCore';
+
+if (typeof window !== 'undefined') {
+  pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+}
+
+type ProofPageImage = { dataUrl: string; width: number; height: number };
+
+const loadProofAttachmentPages = async (url: string): Promise<ProofPageImage[]> => {
+  if (!url.split(/[?#]/, 1)[0].toLowerCase().endsWith('.pdf')) {
+    const image = await loadImageAsset(url);
+    return image ? [image] : [];
+  }
+
+  let document: pdfjs.PDFDocumentProxy | null = null;
+  try {
+    document = await pdfjs.getDocument({ url }).promise;
+    const pages: ProofPageImage[] = [];
+    for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber++) {
+      const page = await document.getPage(pageNumber);
+      const viewport = page.getViewport({ scale: 1.25 });
+      const canvas = window.document.createElement('canvas');
+      canvas.width = Math.ceil(viewport.width);
+      canvas.height = Math.ceil(viewport.height);
+      const context = canvas.getContext('2d', { alpha: false });
+      if (!context) continue;
+      await page.render({ canvas, canvasContext: context, viewport }).promise;
+      pages.push({ dataUrl: canvas.toDataURL('image/png'), width: canvas.width, height: canvas.height });
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+    return pages;
+  } catch (error) {
+    console.error('[Invoice PDF] Failed to render payment proof attachment:', error);
+    return [];
+  } finally {
+    if (document) await document.cleanup();
+  }
+};
 
 /**
  * Renderer PDF khusus invoice.
@@ -78,7 +118,10 @@ export const buildInvoicePdf = async (input: InvoicePdfInput): Promise<jsPDF> =>
   const [logo, signature, ...paymentProofs] = await Promise.all([
     loadImageAsset(profile.logoBase64),
     loadImageAsset(project.invoiceSignature || profile.signatureBase64, { grayscale: true }),
-    ...proofAttachments.map(proof => loadImageAsset(proof.url)),
+    ...proofAttachments.map(async proof => ({
+      label: proof.label,
+      pages: await loadProofAttachmentPages(proof.url),
+    })),
   ]);
 
   // ── Perhitungan data (identik dengan InvoiceDocument) ──────────────────
@@ -696,36 +739,40 @@ export const buildInvoicePdf = async (input: InvoicePdfInput): Promise<jsPDF> =>
     align: 'center',
   });
 
-  paymentProofs.forEach((paymentProof, index) => {
-    if (!paymentProof) return;
-    doc.addPage();
-    setFont(14, 'bold');
-    ink(accent);
-    doc.text(sanitize(proofAttachments[index].label), CONTENT_LEFT, MARGIN_TOP + 6);
+  paymentProofs.forEach(attachment => {
+    attachment.pages.forEach((paymentProof, pageIndex) => {
+      doc.addPage();
+      setFont(14, 'bold');
+      ink(accent);
+      const pageLabel = attachment.pages.length > 1
+        ? `${attachment.label} (HALAMAN ${pageIndex + 1}/${attachment.pages.length})`
+        : attachment.label;
+      doc.text(sanitize(pageLabel), CONTENT_LEFT, MARGIN_TOP + 6);
 
-    const proofMaxW = CONTENT_W;
-    const proofMaxH = CONTENT_BOTTOM - MARGIN_TOP - 18;
-    const ratio = paymentProof.width / paymentProof.height;
-    let proofW = proofMaxW;
-    let proofH = proofW / ratio;
-    if (proofH > proofMaxH) {
-      proofH = proofMaxH;
-      proofW = proofH * ratio;
-    }
-    try {
-      doc.addImage(
-        paymentProof.dataUrl,
-        'PNG',
-        CONTENT_LEFT + (CONTENT_W - proofW) / 2,
-        MARGIN_TOP + 14,
-        proofW,
-        proofH,
-        undefined,
-        'FAST',
-      );
-    } catch {
-      // Abaikan lampiran bila gambar bukti tidak dapat dirender.
-    }
+      const proofMaxW = CONTENT_W;
+      const proofMaxH = CONTENT_BOTTOM - MARGIN_TOP - 18;
+      const ratio = paymentProof.width / paymentProof.height;
+      let proofW = proofMaxW;
+      let proofH = proofW / ratio;
+      if (proofH > proofMaxH) {
+        proofH = proofMaxH;
+        proofW = proofH * ratio;
+      }
+      try {
+        doc.addImage(
+          paymentProof.dataUrl,
+          'PNG',
+          CONTENT_LEFT + (CONTENT_W - proofW) / 2,
+          MARGIN_TOP + 14,
+          proofW,
+          proofH,
+          undefined,
+          'FAST',
+        );
+      } catch {
+        // Abaikan lampiran bila gambar bukti tidak dapat dirender.
+      }
+    });
   });
 
   return doc;

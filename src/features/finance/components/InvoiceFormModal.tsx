@@ -107,8 +107,8 @@ export const InvoiceFormModal: React.FC<InvoiceFormModalProps> = ({
 
   const handleReplaceProof = async (key: string, file?: File) => {
     if (!file) return;
-    if (!['image/png', 'image/jpeg', 'image/jpg', 'image/webp'].includes(file.type)) {
-      showNotification('Pilih gambar PNG, JPG, atau WebP untuk bukti transfer.');
+    if (!['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'application/pdf'].includes(file.type.toLowerCase())) {
+      showNotification('Pilih bukti transfer PNG, JPG, WebP, atau PDF.');
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
@@ -645,7 +645,7 @@ export const InvoiceFormModal: React.FC<InvoiceFormModalProps> = ({
                     {formData.dpProofUrl && (
                       <div className="flex items-center gap-3 rounded-xl border border-brand-border p-3">
                         <a href={formData.dpProofUrl} target="_blank" rel="noopener noreferrer" title="Lihat bukti transfer DP">
-                          <img src={formData.dpProofUrl} alt="Bukti transfer DP" className="h-16 w-20 rounded-lg border border-brand-border object-cover"  loading="lazy" decoding="async" />
+                          {formData.dpProofUrl.toLowerCase().split(/[?#]/, 1)[0].endsWith('.pdf') ? <span className="inline-flex h-16 w-20 items-center justify-center rounded-lg border border-brand-border bg-red-50 text-xs font-bold text-red-700">PDF</span> : <img src={formData.dpProofUrl} alt="Bukti transfer DP" className="h-16 w-20 rounded-lg border border-brand-border object-cover" loading="lazy" decoding="async" />}
                         </a>
                         <div className="min-w-0 flex-1">
                           <p className="break-words text-xs font-semibold text-brand-text-primary">Bukti Transfer DP</p>
@@ -653,7 +653,7 @@ export const InvoiceFormModal: React.FC<InvoiceFormModalProps> = ({
                             <label htmlFor="replace-dp-proof" title="Unggah ulang bukti DP" className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-brand-border text-brand-accent hover:bg-brand-bg">
                               <Upload className="h-4 w-4" />
                             </label>
-                            <input id="replace-dp-proof" type="file" accept="image/png,image/jpeg,image/webp" disabled={uploadingProofKey === 'dp'} onChange={event => { void handleReplaceProof('dp', event.target.files?.[0]); event.currentTarget.value = ''; }} className="sr-only" />
+                            <input id="replace-dp-proof" type="file" accept="image/png,image/jpeg,image/webp,application/pdf" disabled={uploadingProofKey === 'dp'} onChange={event => { void handleReplaceProof('dp', event.target.files?.[0]); event.currentTarget.value = ''; }} className="sr-only" />
                             <button type="button" onClick={() => handleDeleteProof('dp')} title="Hapus bukti DP" aria-label="Hapus bukti DP" className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50">
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -667,7 +667,7 @@ export const InvoiceFormModal: React.FC<InvoiceFormModalProps> = ({
                       return (
                         <div key={`${proof.url}-${index}`} className="flex items-center gap-3 rounded-xl border border-brand-border p-3">
                           <a href={proof.url} target="_blank" rel="noopener noreferrer" title="Lihat bukti pembayaran">
-                            <img src={proof.url} alt={`Bukti pembayaran ${index + 1}`} className="h-16 w-20 rounded-lg border border-brand-border object-cover"  loading="lazy" decoding="async" />
+                            {proof.url.toLowerCase().split(/[?#]/, 1)[0].endsWith('.pdf') ? <span className="inline-flex h-16 w-20 items-center justify-center rounded-lg border border-brand-border bg-red-50 text-xs font-bold text-red-700">PDF</span> : <img src={proof.url} alt={`Bukti pembayaran ${index + 1}`} className="h-16 w-20 rounded-lg border border-brand-border object-cover" loading="lazy" decoding="async" />}
                           </a>
                           <div className="min-w-0 flex-1">
                             <p className="break-words text-xs font-semibold text-brand-text-primary">Bukti Pembayaran {index + 1}</p>
@@ -676,7 +676,7 @@ export const InvoiceFormModal: React.FC<InvoiceFormModalProps> = ({
                               <label htmlFor={`replace-proof-${index}`} title="Unggah ulang bukti pembayaran" className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-brand-border text-brand-accent hover:bg-brand-bg">
                                 <Upload className="h-4 w-4" />
                               </label>
-                              <input id={`replace-proof-${index}`} type="file" accept="image/png,image/jpeg,image/webp" disabled={uploadingProofKey === key} onChange={event => { void handleReplaceProof(key, event.target.files?.[0]); event.currentTarget.value = ''; }} className="sr-only" />
+                              <input id={`replace-proof-${index}`} type="file" accept="image/png,image/jpeg,image/webp,application/pdf" disabled={uploadingProofKey === key} onChange={event => { void handleReplaceProof(key, event.target.files?.[0]); event.currentTarget.value = ''; }} className="sr-only" />
                               <button type="button" onClick={() => handleDeleteProof(key)} title="Hapus bukti pembayaran" aria-label={`Hapus bukti pembayaran ${index + 1}`} className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50">
                                 <Trash2 className="h-4 w-4" />
                               </button>
