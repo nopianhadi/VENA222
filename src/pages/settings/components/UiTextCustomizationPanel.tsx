@@ -134,7 +134,7 @@ const UiTextCustomizationPanel: React.FC = () => {
     const selectedGroup = visibleGroups.includes(activeGroup) ? activeGroup : visibleGroups[0];
     useEffect(() => {
         const selectedTab = tabListRef.current?.querySelector<HTMLElement>('[aria-selected="true"]');
-        selectedTab?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        selectedTab?.scrollIntoView?.({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }, [activeGroup, normalizedSearch, selectedGroup]);
     const changedKeys = [...new Set([...Object.keys(normalizedSaved), ...Object.keys(normalizedDraft)])]
         .filter(key => normalizedSaved[key] !== normalizedDraft[key]);

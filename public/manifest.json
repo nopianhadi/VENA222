@@ -28,5 +28,35 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Jadwal Pemotretan",
+      "short_name": "Agenda",
+      "description": "Buka agenda jadwal pemotretan",
+      "url": "/#calendar",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Tambah Klien",
+      "short_name": "+ Klien",
+      "description": "Tambah data pengantin baru",
+      "url": "/#clients?action=new",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Laporan Keuangan",
+      "short_name": "Keuangan",
+      "description": "Pantau omset dan arus kas",
+      "url": "/#finance",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Widget Studio",
+      "short_name": "Widget",
+      "description": "Buka simulator dan pengaturan widget",
+      "url": "/#widgets",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    }
   ]
 }

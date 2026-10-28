@@ -18,6 +18,7 @@ export const ROUTE_PATH_MAP: Partial<Record<ViewType, string>> = {
   [ViewType.VENDOR_PROFILE]: "vendor-profile",
   [ViewType.BIO_LINKS]: "bio-links",
   [ViewType.INVOICES]: "invoices",
+  [ViewType.WIDGETS]: "widgets",
 };
 
 export const ROUTE_TO_VIEW_MAP: Record<string, ViewType> = {
@@ -45,6 +46,7 @@ export const ROUTE_TO_VIEW_MAP: Record<string, ViewType> = {
   "vendor-profile": ViewType.VENDOR_PROFILE,
   "bio-links": ViewType.BIO_LINKS,
   invoices: ViewType.INVOICES,
+  widgets: ViewType.WIDGETS,
 };
 
 export const resolveViewFromPath = (path: string): ViewType => {

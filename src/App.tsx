@@ -20,6 +20,7 @@ import {
   useIsPublicLeadFormRoute,
 } from "./hooks/useIsLightweightPublicRoute";
 import { persistQueryCache } from "./lib/queryCachePersistence";
+import { useWidgetSync } from "./hooks/useWidgetSync";
 
 import PublicRoutes, { isPublicRoutePath } from "./routes/PublicRoutes";
 import AuthenticatedRoutes from "./routes/AuthenticatedRoutes";
@@ -50,6 +51,8 @@ function App() {
     skipProfileData: isLightPublicRoute && !isPublicFormDataRoute && !isPublicLeadFormRoute,
     publicProfileData: isLightPublicRoute && (isPublicFormDataRoute || isPublicLeadFormRoute),
   });
+
+  useWidgetSync(auxData.profile);
 
   useEffect(() => {
     const rootStyle = document.documentElement.style;

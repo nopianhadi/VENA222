@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { ViewType, User, Profile } from '../types';
 import { customizeNavigationLabel, customizeNavigationSection, useUiTextOverrides } from '../utils/uiTextCustomization';
-import { Link as LinkIcon } from 'lucide-react';
+import { Link as LinkIcon, Smartphone as SmartphoneIcon } from 'lucide-react';
 import {
   HomeIcon,
   UsersIcon,
@@ -127,6 +127,7 @@ const NAV_MENUS: NavMenuItem[] = [
       { view: ViewType.VENDOR_PROFILE, label: 'Profil Vendor', icon: UserCircleIcon },
       { view: ViewType.BIO_LINKS, label: 'Link Publik', icon: LinkIcon },
       { view: ViewType.SETTINGS, label: 'Pengaturan Sistem', icon: SettingsIcon },
+      { view: ViewType.WIDGETS, label: 'Widget Layar Utama', icon: SmartphoneIcon },
     ],
   },
 ];

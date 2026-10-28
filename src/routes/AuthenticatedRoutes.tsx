@@ -56,6 +56,11 @@ const ClientReports = lazy(() => import("../features/clients/components/ClientKP
 const PromoCodes = lazy(() => import("../features/promo/PromoCodes"));
 const GalleryUpload = lazy(() => import("../features/public/components/GalleryUpload"));
 const InvoicePage = lazy(() => import("../pages/finance/InvoicePage"));
+const WidgetStudio = lazy(() =>
+  import("../features/widgets/components/WidgetStudio").then((m) => ({
+    default: m.WidgetStudio,
+  })),
+);
 
 export interface AuthenticatedRoutesProps {
   activeView: ViewType;
@@ -604,6 +609,13 @@ export const AuthenticatedRoutes: React.FC<AuthenticatedRoutesProps> = ({
             initialAction={initialAction}
             setInitialAction={setInitialAction}
           />
+        </Suspense>
+      );
+
+    case ViewType.WIDGETS:
+      return (
+        <Suspense fallback={<LoadingState />}>
+          <WidgetStudio />
         </Suspense>
       );
 

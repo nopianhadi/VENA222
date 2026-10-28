@@ -565,7 +565,7 @@ const Finance: React.FC<FinanceProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                     <button
-                        onClick={handleDownloadFinancePdf}
+                        onClick={() => { void handleDownloadFinancePdf(); }}
                         disabled={isExportingPdf}
                         className="bg-white hover:bg-[#F4F6F9] text-[#2A3547] font-bold rounded-xl px-3 sm:px-4 py-2.5 text-xs sm:text-sm border border-[#EAEFF4] inline-flex items-center gap-1.5 transition-all disabled:opacity-60"
                     >

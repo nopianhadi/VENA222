@@ -90,6 +90,7 @@ export enum ViewType {
   VENDOR_PROFILE = 'Profil Vendor',
   BIO_LINKS = 'Link Publik',
   INVOICES = 'Daftar Invoice',
+  WIDGETS = 'Widget Layar Utama',
 }
 
 export interface SubStatusConfig {

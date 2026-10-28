@@ -688,6 +688,8 @@ const DashboardTab: React.FC<{
 const ProjectsTab: React.FC<{
   projects: Project[]; profile: Profile; teamMembers: TeamMember[];
 }> = ({ projects = [], profile, teamMembers = [] }) => {
+  const uiTextOverrides = useUiTextOverrides();
+  const portalText = (key: string, fallback: string) => customizeUiText(`portal.client.${key}`, fallback, uiTextOverrides);
   const safeProjects = projects || [];
   const safeMembers = teamMembers || [];
   const safeStatusConfig = profile?.projectStatusConfig || [];

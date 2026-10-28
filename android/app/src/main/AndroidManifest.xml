@@ -22,7 +22,54 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Deep Link Intent Filter for weddfin:// -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="weddfin" />
+            </intent-filter>
+
         </activity>
+
+        <!-- Small Widget Receiver -->
+        <receiver
+            android:name=".VenaScheduleWidgetSmall"
+            android:label="Vena - Jadwal Terdekat"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_small" />
+        </receiver>
+
+        <!-- Medium Widget Receiver -->
+        <receiver
+            android:name=".VenaScheduleWidgetMedium"
+            android:label="Vena - Agenda Pemotretan"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_medium" />
+        </receiver>
+
+        <!-- Large Widget Receiver -->
+        <receiver
+            android:name=".VenaDashboardWidgetLarge"
+            android:label="Vena - Studio Cockpit"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_large" />
+        </receiver>
 
         <provider
             android:name="androidx.core.content.FileProvider"
