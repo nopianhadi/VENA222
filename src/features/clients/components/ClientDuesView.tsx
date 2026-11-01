@@ -3,6 +3,13 @@ import { WhatsappIcon } from '../../../constants';
 import { ClientWithSummary } from '../hooks/useClients';
 import { formatCurrency } from '../utils/clientHelpers';
 
+const formatEventDate = (date?: string | null): string => {
+    if (!date) return '-';
+    const parsed = new Date(`${date.slice(0, 10)}T00:00:00`);
+    if (Number.isNaN(parsed.getTime())) return '-';
+    return parsed.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
 interface ClientDuesViewProps {
     clientsWithDues: ClientWithSummary[];
     monthFilter: string;
@@ -20,7 +27,16 @@ export const ClientDuesView: React.FC<ClientDuesViewProps> = ({
     setShowAllDues,
     onBillingClick,
 }) => {
-    const displayedClients = showAllDues ? clientsWithDues : clientsWithDues.slice(0, 5);
+    // Urutkan berdasarkan tanggal acara terbaru (terlama/terdekat lebih dulu).
+    const sortedClients = [...clientsWithDues].sort((left, right) => {
+        const leftDate = left.mostRecentProject?.date || '';
+        const rightDate = right.mostRecentProject?.date || '';
+        if (!leftDate && !rightDate) return 0;
+        if (!leftDate) return 1;
+        if (!rightDate) return -1;
+        return leftDate.localeCompare(rightDate);
+    });
+    const displayedClients = showAllDues ? sortedClients : sortedClients.slice(0, 5);
 
     return (
         <div className="bg-brand-surface rounded-2xl shadow-lg border border-brand-border widget-animate animate-fade-in">
@@ -70,6 +86,8 @@ export const ClientDuesView: React.FC<ClientDuesViewProps> = ({
                             </button>
                         </div>
                         <div className="mt-3 grid grid-cols-2 gap-y-2 text-sm">
+                            <span className="text-brand-text-secondary">Tanggal Acara</span>
+                            <span className="text-right">{formatEventDate(client.mostRecentProject?.date)}</span>
                             <span className="text-brand-text-secondary">Total Nilai</span>
                             <span className="text-right">{formatCurrency(client.totalProjectValue)}</span>
                             <span className="text-brand-text-secondary">Sisa Pembayaran</span>
@@ -98,6 +116,7 @@ export const ClientDuesView: React.FC<ClientDuesViewProps> = ({
                     <thead className="text-xs text-brand-text-secondary uppercase">
                         <tr>
                             <th className="px-4 py-4 font-medium tracking-wider text-center w-12">No</th>
+                            <th className="px-6 py-4 font-medium tracking-wider whitespace-nowrap">Tanggal</th>
                             <th className="px-6 py-4 font-medium tracking-wider">Pengantin</th>
                             <th className="px-6 py-4 font-medium tracking-wider text-right">Total Package</th>
                             <th className="px-6 py-4 font-medium tracking-wider text-right">Sisa Pembayaran</th>
@@ -109,6 +128,7 @@ export const ClientDuesView: React.FC<ClientDuesViewProps> = ({
                         {displayedClients.map((client, index) => (
                             <tr key={client.id} className="hover:bg-brand-bg transition-colors">
                                 <td className="px-4 py-4 text-center font-medium text-brand-text-secondary">{index + 1}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">{formatEventDate(client.mostRecentProject?.date)}</td>
                                 <td className="px-6 py-4">
                                     <p className="font-semibold text-brand-text-light">{client.name}</p>
                                     <p className="text-xs text-brand-text-secondary">{client.email}</p>
@@ -130,7 +150,7 @@ export const ClientDuesView: React.FC<ClientDuesViewProps> = ({
                         ))}
                         {clientsWithDues.length === 0 && (
                             <tr>
-                                <td colSpan={6} className="text-center py-8 text-brand-text-secondary">
+                                <td colSpan={7} className="text-center py-8 text-brand-text-secondary">
                                     Luar biasa! Semua pengantin sudah lunas.
                                 </td>
                             </tr>
