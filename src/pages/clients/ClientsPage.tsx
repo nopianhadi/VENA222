@@ -711,8 +711,25 @@ export const Clients: React.FC<ClientsProps> = ({
     const currentMonthEvents = useMemo(() => {
         const now = new Date();
         const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        return allClientData.flatMap(client => client.projects
-            .filter(project => project.date?.slice(0, 7) === currentMonthKey)
+
+        const from = dateFrom ? new Date(dateFrom) : null;
+        const to = dateTo ? new Date(dateTo) : null;
+        if (from) from.setHours(0, 0, 0, 0);
+        if (to) to.setHours(23, 59, 59, 999);
+        const hasDateRange = !!from || !!to;
+
+        // Saat filter tanggal aktif, tampilkan acara pada rentang tersebut.
+        // Tanpa filter, tetap tampilkan acara bulan berjalan.
+        const matchesDate = (project: Project): boolean => {
+            if (!project.date) return false;
+            if (!hasDateRange) return project.date.slice(0, 7) === currentMonthKey;
+            const projectDate = new Date(project.date);
+            if (Number.isNaN(projectDate.getTime())) return false;
+            return (!from || projectDate >= from) && (!to || projectDate <= to);
+        };
+
+        return filteredClientData.flatMap(client => client.projects
+            .filter(matchesDate)
             .map(project => ({
                 ...client,
                 projects: [project],
@@ -723,7 +740,7 @@ export const Clients: React.FC<ClientsProps> = ({
                 mostRecentProject: project,
             })))
             .sort((left, right) => (right.mostRecentProject?.date || '').localeCompare(left.mostRecentProject?.date || ''));
-    }, [allClientData]);
+    }, [filteredClientData, dateFrom, dateTo]);
 
     const clientStatusDonutData = useMemo(() => {
         const statusCounts = clients.reduce((acc, client) => {
@@ -956,6 +973,7 @@ export const Clients: React.FC<ClientsProps> = ({
                         setClientTab={setClientTab}
                         filteredClientData={filteredClientData}
                         currentMonthEvents={currentMonthEvents}
+                        isDateFilterActive={!!dateFrom || !!dateTo}
                         onViewDetail={(client: Client) => {
                             setClientForDetail(client);
                             setIsDetailModalOpen(true);

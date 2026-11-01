@@ -8,11 +8,19 @@ import { customizeUiText, useUiTextOverrides } from '../../../utils/uiTextCustom
 
 export type ClientTabType = 'active' | 'inactive' | 'all' | 'no-date' | 'this-month';
 
+const formatEventDate = (date?: string | null): string => {
+    if (!date) return '-';
+    const parsed = new Date(`${date.slice(0, 10)}T00:00:00`);
+    if (Number.isNaN(parsed.getTime())) return '-';
+    return parsed.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
 interface ClientTableViewProps {
     clientTab: ClientTabType;
     setClientTab: React.Dispatch<React.SetStateAction<ClientTabType>>;
     filteredClientData: ClientWithSummary[];
     currentMonthEvents: ClientWithSummary[];
+    isDateFilterActive?: boolean;
     onViewDetail: (client: Client) => void;
     onEditClient: (client: Client, project?: Project) => void;
     onDeleteClient: (clientId: string) => void;
@@ -24,6 +32,7 @@ export const ClientTableView: React.FC<ClientTableViewProps> = ({
     setClientTab,
     filteredClientData,
     currentMonthEvents,
+    isDateFilterActive = false,
     onViewDetail,
     onEditClient,
     onDeleteClient,
@@ -66,7 +75,7 @@ export const ClientTableView: React.FC<ClientTableViewProps> = ({
                                 : 'text-[#5A6A85] hover:text-[#2A3547]'
                         }`}
                     >
-                        Pengantin Bulan Ini ({currentMonthEvents.length})
+                        Pengantin {isDateFilterActive ? 'Sesuai Tanggal' : 'Bulan Ini'} ({currentMonthEvents.length})
                     </button>
                     <button
                         type="button"
@@ -154,10 +163,10 @@ export const ClientTableView: React.FC<ClientTableViewProps> = ({
                                 )}
                             </div>
                         </div>
-                        {clientTab === 'this-month' && client.mostRecentProject && (
+                        {client.mostRecentProject && (
                             <div className="mt-2 border-t border-[#EAEFF4] pt-1.5">
                                 <p className="truncate text-[11px] font-semibold text-brand-accent">{client.mostRecentProject.projectName}</p>
-                                <p className="text-[10px] text-[#5A6A85]">{new Date(`${client.mostRecentProject.date.slice(0, 10)}T00:00:00`).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                <p className="text-[10px] text-[#5A6A85]">{formatEventDate(client.mostRecentProject.date)}</p>
                             </div>
                         )}
                         <div className="mt-2 flex items-center justify-between text-[11px] border-t border-[#EAEFF4] pt-1.5">
@@ -231,6 +240,7 @@ export const ClientTableView: React.FC<ClientTableViewProps> = ({
                             <th className="px-3 lg:px-4 py-3.5 text-center w-10">{text('number', 'No')}</th>
                             <th className="px-3 lg:px-6 py-3.5">{text('client', 'Pengantin')}</th>
                             <th className="px-3 lg:px-6 py-3.5">{text('status', 'Status')}</th>
+                            <th className="px-3 lg:px-6 py-3.5">{text('date', 'Tanggal')}</th>
                             <th className="px-3 lg:px-6 py-3.5">{text('package', 'Total Package')}</th>
                             <th className="px-3 lg:px-6 py-3.5">{text('balance', 'Sisa Pembayaran')}</th>
                             <th className="px-3 lg:px-6 py-3.5">{clientTab === 'this-month' ? text('eventThisMonth', 'Nama Acara Bulan Ini') : text('event', 'Acara Pernikahan Terbaru')}</th>
@@ -268,15 +278,13 @@ export const ClientTableView: React.FC<ClientTableViewProps> = ({
                                         {client.status}
                                     </span>
                                 </td>
+                                <td className="px-3 lg:px-6 py-3.5 whitespace-nowrap font-medium text-[#2A3547]">
+                                    {formatEventDate(client.mostRecentProject?.date)}
+                                </td>
                                 <td className="px-3 lg:px-6 py-3.5 font-bold text-[#2A3547] whitespace-nowrap">{formatCurrency(client.totalProjectValue)}</td>
                                 <td className="px-3 lg:px-6 py-3.5 font-bold text-red-600 whitespace-nowrap">{formatCurrency(client.balanceDue)}</td>
                                 <td className="px-3 lg:px-6 py-3.5">
                                     <p className="font-medium text-[#2A3547] truncate max-w-[140px] lg:max-w-none">{client.mostRecentProject?.projectName || '-'}</p>
-                                    {clientTab === 'this-month' && client.mostRecentProject?.date && (
-                                        <p className="mt-0.5 text-[10px] text-[#5A6A85]">
-                                            {new Date(`${client.mostRecentProject.date.slice(0, 10)}T00:00:00`).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                                        </p>
-                                    )}
                                     {client.overallPaymentStatus && (
                                         <div className="mt-1">
                                             <span
@@ -325,7 +333,7 @@ export const ClientTableView: React.FC<ClientTableViewProps> = ({
                         ))}
                         {displayedClients.length === 0 && (
                             <tr>
-                                <td colSpan={7} className="text-center py-10 text-xs text-[#5A6A85]">
+                                <td colSpan={8} className="text-center py-10 text-xs text-[#5A6A85]">
                         Tidak ada data pengantin yang sesuai dengan filter yang dipilih.
                                 </td>
                             </tr>

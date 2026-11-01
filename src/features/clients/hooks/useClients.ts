@@ -84,7 +84,7 @@ export const useClients = (
     }, [clients, projects]);
 
     const filteredClientData = useMemo(() => {
-        return allClientData.filter(client => {
+        const matched = allClientData.filter(client => {
             // Search filter - cari di nama, email, phone, whatsapp
             const searchMatch = searchTerm === '' ||
                 client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -114,6 +114,46 @@ export const useClients = (
             })();
 
             return searchMatch && statusMatch && dateMatchRange;
+        });
+
+        // Tanpa filter tanggal: kembalikan seperti semula.
+        if (!dateFrom && !dateTo) return matched;
+
+        // Saat filter tanggal aktif: batasi acara tiap pengantin hanya pada yang
+        // berada dalam rentang, agar acara di luar rentang (mis. bulan berikutnya)
+        // tidak ikut tampil di kolom Tanggal maupun nilai proyeknya.
+        const from = dateFrom ? new Date(dateFrom) : null;
+        const to = dateTo ? new Date(dateTo) : null;
+        if (from) from.setHours(0, 0, 0, 0);
+        if (to) to.setHours(23, 59, 59, 999);
+
+        const isInRange = (dateStr?: string): boolean => {
+            if (!dateStr) return false;
+            const date = new Date(dateStr);
+            if (Number.isNaN(date.getTime())) return false;
+            return (!from || date >= from) && (!to || date <= to);
+        };
+
+        return matched.flatMap(client => {
+            const inRangeProjects = client.projects
+                .filter(project => isInRange(project.date))
+                .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
+
+            if (inRangeProjects.length === 0) return [];
+
+            const mostRecentProject = inRangeProjects[0];
+            const totalValue = inRangeProjects.reduce((sum, project) => sum + project.totalCost, 0);
+            const totalPaid = inRangeProjects.reduce((sum, project) => sum + project.amountPaid, 0);
+
+            return [{
+                ...client,
+                projects: inRangeProjects,
+                totalProjectValue: totalValue,
+                balanceDue: totalValue - totalPaid,
+                PackageTerbaru: `${mostRecentProject.packageName}${mostRecentProject.addOns.length > 0 ? ` + ${mostRecentProject.addOns.length} Add-on` : ''}`,
+                overallPaymentStatus: mostRecentProject.paymentStatus,
+                mostRecentProject,
+            }];
         });
     }, [allClientData, searchTerm, statusFilter, dateFrom, dateTo]);
 
